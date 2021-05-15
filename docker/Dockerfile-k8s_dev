@@ -22,12 +22,11 @@ HEALTHCHECK --interval=15s \
             --retries=3 \
             --start-period=1m \
             --timeout=5s \
-            CMD curl --fail http://localhost:4200 || exit 1
+            CMD curl --fail http://localhost:4300 || exit 1
 
 EXPOSE 30006
-EXPOSE 4200
-#CMD ["java", "-jar", "-Dspring.profiles.active=k8s_dev",  "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:30006", "laboschqpa.filehost.jar"]
+EXPOSE 4300
 
-COPY --chown=spring-user:spring-user build/libs/laboschqpa.filehost.jar ${APP_HOME}/laboschqpa.filehost.jar
+COPY --chown=spring-user:spring-user build/libs/laboschqpa.imageconverter.jar ${APP_HOME}/laboschqpa.imageconverter.jar
 
 USER spring-user

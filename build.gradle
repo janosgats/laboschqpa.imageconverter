@@ -26,12 +26,7 @@ idea {
 }
 
 dependencies {
-    implementation platform('software.amazon.awssdk:bom:2.15.69')
-    implementation 'software.amazon.awssdk:s3'
-
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-configuration-processor'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -40,12 +35,11 @@ dependencies {
     implementation 'io.micrometer:micrometer-core'
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation 'org.projectreactor:reactor-spring:1.0.1.RELEASE'
-    implementation 'com.janosgats.logging:flexible-appender:1.1.5'
-    implementation 'org.apache.tika:tika-core:1.24.1'
-    implementation 'org.apache.tika:tika-parsers:1.24.1'
+    implementation 'com.janosgats.logging:flexible-appender:1.1.6'
+    implementation'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'com.google.guava:guava:30.1.1-jre'
 
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'mysql:mysql-connector-java'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'com.vaadin.external.google', module: 'android-json'
@@ -63,7 +57,7 @@ configurations {
 
 group = 'com.laboschqpa'
 version = '0.0.1-SNAPSHOT'
-description = 'FileHost of Qpa and CST web'
+description = 'ImageVonverter of Labosch Qpa Web'
 java.sourceCompatibility = JavaVersion.VERSION_11
 
 publishing {
@@ -79,7 +73,7 @@ tasks.withType(JavaCompile) {
 }
 
 bootJar {
-    archiveFileName = 'laboschqpa.filehost.jar'
+    archiveFileName = 'laboschqpa.imageconverter.jar'
 }
 
 test {

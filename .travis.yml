@@ -9,7 +9,7 @@ env:
 
     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
-    - PROJECT_IMAGE_NAME=laboschqpa-filehost
+    - PROJECT_IMAGE_NAME=laboschqpa-imageconverter
     - SHORT_COMMIT_HASH=${TRAVIS_COMMIT::10}
     - IMAGE_NAME_COMMIT=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${SHORT_COMMIT_HASH}
     - IMAGE_NAME_BRANCH=${DOCKER_USERNAME}/${PROJECT_IMAGE_NAME}:${TRAVIS_BRANCH}
@@ -50,4 +50,4 @@ jobs:
         - gcloud container clusters get-credentials laboschqpa-1
         - ls -lah
       install:
-        - kubectl -n=qpa set image deployments/filehost filehost=${IMAGE_NAME_COMMIT}
+        - kubectl -n=qpa set image deployments/imageconverter imageconverter=${IMAGE_NAME_COMMIT}

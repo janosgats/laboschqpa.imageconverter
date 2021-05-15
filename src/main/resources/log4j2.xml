@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- LoggerConfig -->
-<Configuration name="com.laboschqpa.filehost" packages="com.laboschqpa.filehost.logging">
+<Configuration name="com.laboschqpa.imageconverter" packages="com.laboschqpa.imageconverter.logging">
     <Appenders>
 
         <LocaldevConsoleAppender name="LocaldevConsoleAppender">
@@ -32,10 +32,7 @@
         <Logger name="org.springframework.security.web" level="info" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
         </Logger>
-        <Logger name="com.laboschqpa.filehost.config.filter.ApiInternalAuthInterServiceFilter" level="debug" additivity="false">
-            <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
-        </Logger>
-        <Logger name="com.laboschqpa.filehost" level="all" additivity="false">
+        <Logger name="com.laboschqpa.imageconverter" level="all" additivity="false">
             <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
         </Logger>
         <Root level="info">
