@@ -1,0 +1,16 @@
+.idea/*
+!.idea/runConfigurations
+
+target/
+filehost.iml
+secret/
+tmp/
+
+build/
+
+out/
+.gradle
+# Ignore Gradle GUI config
+gradle-app.setting
+# Cache of project
+.gradletasknamecache
