@@ -14,20 +14,11 @@ RUN gradle bootJar test --no-daemon
 FROM openjdk:11
 MAINTAINER "János Gats <gatsjanos@gmail.com>"
 
-###### Adding APR Support >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-ARG DEBIAN_FRONTEND=noninteractive
-ENV LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:/usr/lib/x86_64-linux-gnu/
-#Install commands are intentionally separated
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends apt-utils && \
-    apt-get install -y --no-install-recommends libtcnative-1
-###### End of: Adding APR Support <<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
 ENV APP_HOME=/home/spring-user/app
 ENV LOGGING_ENABLE_LOCALDEV_CONSOLE_APPENDER=true
 
-RUN groupadd -g 10002 spring-user && \
-    useradd -m -u 10002 -g spring-user spring-user
+RUN groupadd -g 10003 spring-user && \
+    useradd -m -u 10003 -g spring-user spring-user
 
 WORKDIR ${APP_HOME}
 
