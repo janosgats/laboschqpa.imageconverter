@@ -12,10 +12,18 @@ public class ApiCallerFactory {
     private final AuthInterServiceCrypto authInterServiceCrypto;
 
     public ApiCaller createGeneral(String apiBaseUrl) {
-        return new ApiCaller(apiBaseUrl, webClient, new String[0]);
+        return createGeneral(apiBaseUrl, webClient);
+    }
+
+    public ApiCaller createGeneral(String apiBaseUrl, WebClient customWebclient) {
+        return new ApiCaller(apiBaseUrl, customWebclient, new String[0]);
     }
 
     public ApiCaller createForAuthInterService(String apiBaseUrl) {
-        return new ApiCaller(apiBaseUrl, webClient, new String[0], authInterServiceCrypto);
+        return createForAuthInterService(apiBaseUrl, webClient);
+    }
+
+    public ApiCaller createForAuthInterService(String apiBaseUrl, WebClient customWebclient) {
+        return new ApiCaller(apiBaseUrl, customWebclient, new String[0], authInterServiceCrypto);
     }
 }

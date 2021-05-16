@@ -1,7 +1,8 @@
 package com.laboschqpa.imageconverter.api.errorhandling;
 
-import com.laboschqpa.imageconverter.exceptions.apierrordescriptor.ApiErrorDescriptorException;
+import com.laboschqpa.imageconverter.exceptions.TooManyActiveJobsException;
 import com.laboschqpa.imageconverter.exceptions.UnAuthorizedException;
+import com.laboschqpa.imageconverter.exceptions.apierrordescriptor.ApiErrorDescriptorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +30,13 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
             ApiErrorDescriptorException e, WebRequest request) {
         loggerOfChild.trace("handleApiErrorDescriptorException() caught exception while executing api request!", e);
         return new ResponseEntity<>(new ApiErrorResponseBody(e.getApiErrorDescriptor(), e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(TooManyActiveJobsException.class)
+    protected ResponseEntity<String> handlTooManyActiveJobs(
+            Exception e, WebRequest request) {
+        loggerOfChild.debug("TooManyActiveJobsException caught while executing api request!", e);
+        return new ResponseEntity<>("Too many active jobs", HttpStatus.TOO_MANY_REQUESTS);
     }
 
     @ExceptionHandler(UnAuthorizedException.class)

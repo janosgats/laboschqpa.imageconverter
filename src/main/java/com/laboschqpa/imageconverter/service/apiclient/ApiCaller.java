@@ -7,7 +7,6 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ReactiveHttpOutputMessage;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -46,20 +45,16 @@ public class ApiCaller {
         this.authInterServiceCrypto = authInterServiceCrypto;
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod) {
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, null);
+    public <T> Mono<T> doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod) {
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null);
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams) {
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, null);
-    }
-
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, JsonNode requestBody) {
+    public <T> Mono<T> doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, JsonNode requestBody) {
         return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, requestBody);
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod,
-                                                             Map<String, String> queryParams, JsonNode requestBody) {
+    public <T> Mono<T> doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod,
+                                                                   Map<String, String> queryParams, JsonNode requestBody) {
         HttpHeaders httpHeaders = new HttpHeaders();
         BodyInserter<?, ? super ClientHttpRequest> requestBodyInserter;
 
@@ -73,25 +68,20 @@ public class ApiCaller {
         return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, requestBodyInserter, httpHeaders, null, false);
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, HttpHeaders headers) {
+    public <T> Mono<T> doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
+                                                                   BodyInserter<? extends Object, ? super ClientHttpRequest> requestBodyInserter) {
 
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, null, BodyInserters.empty(), headers, null, false);
+        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, requestBodyInserter, null, null, false);
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
-                                                             BodyInserter<? extends Object, ReactiveHttpOutputMessage> requestBodyInserter, HttpHeaders headers) {
-
-        return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams, requestBodyInserter, headers, null, false);
-    }
-
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
-                                                             String stringRequestBody, HttpHeaders headers) {
+    public <T> Mono<T> doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
+                                                                   String stringRequestBody, HttpHeaders headers) {
         return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams,
                 BodyInserters.fromValue(stringRequestBody), headers, null, false);
     }
 
-    public <T> T doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
-                                                             BodyInserter<?, ? super ClientHttpRequest> requestBodyInserter, HttpHeaders headers, MultiValueMap<String, String> cookies, final boolean disableUrlEncodingOfQueryParams) {
+    public <T> Mono<T> doCallAndThrowExceptionIfStatuscodeIsNot2xx(final Class<T> responseBodyClass, String uriPath, HttpMethod httpMethod, Map<String, String> queryParams,
+                                                                   BodyInserter<?, ? super ClientHttpRequest> requestBodyInserter, HttpHeaders headers, MultiValueMap<String, String> cookies, final boolean disableUrlEncodingOfQueryParams) {
         if (headers == null) {
             return doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod, queryParams,
                     requestBodyInserter, new HttpHeaders(), cookies, disableUrlEncodingOfQueryParams);
@@ -127,7 +117,7 @@ public class ApiCaller {
                     }
                 });
 
-        return responseBodyMono.block();
+        return responseBodyMono;
     }
 
     protected String createQueryStringFromHttpParameters(final Map<String, String> queryParams, final boolean disableUrlEncodingOfQueryParams) {
@@ -157,14 +147,14 @@ public class ApiCaller {
         return response
                 .bodyToMono(responseBodyClass)
                 .doOnSuccess((T responseBody) ->
-                        log.debug("Rest call succeeded. Url: {{} {}}, HTTP status code: {{}}, Parsed responseBody.toString length: {{}}",
+                        log.trace("Rest call succeeded. Url: {{} {}}, HTTP status code: {{}}, Parsed responseBody.toString length: {{}}",
                                 () -> httpMethod,
                                 () -> hideSecretForLogsInString(fullUriString),
                                 response::statusCode,
                                 () -> responseBody != null ? responseBody.toString().length() : "<No response body was present>"
                         ))
                 .doOnError(throwable ->
-                        log.debug("Exception while getting response body. Expected body class type: {}, Url: {{} {}}, HTTP status code: {{}}",
+                        log.error("Exception while getting response body. Expected body class type: {}, Url: {{} {}}, HTTP status code: {{}}",
                                 responseBodyClass.getSimpleName(),
                                 httpMethod,
                                 hideSecretForLogsInString(fullUriString),

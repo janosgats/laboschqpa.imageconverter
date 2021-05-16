@@ -6,6 +6,7 @@ import com.laboschqpa.imageconverter.service.authinterservice.AuthInterServiceCr
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ReactiveHttpOutputMessage;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -85,7 +85,7 @@ class ApiCallerTest {
 
         final String actualResponseBody
                 = apiCaller.doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod,
-                queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams);
+                queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams).block();
 
         final RecordedRequest recordedRequest = Objects.requireNonNull(mockWebServer.takeRequest(1, TimeUnit.SECONDS));
 
@@ -124,7 +124,7 @@ class ApiCallerTest {
 
         final String actualResponseBody
                 = apiCaller.doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod,
-                queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams);
+                queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams).block();
 
         final RecordedRequest recordedRequest = Objects.requireNonNull(mockWebServer.takeRequest(1, TimeUnit.SECONDS));
 
@@ -165,7 +165,7 @@ class ApiCallerTest {
         ResponseCodeIsNotSuccessApiClientException receivedException = null;
         try {
             apiCaller.doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod,
-                    queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams);
+                    queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams).block();
             fail("Nothing was thrown, but ResponseCodeIsNotSuccessApiClientException should have been thrown!");
         } catch (ResponseCodeIsNotSuccessApiClientException e) {
             receivedException = e;
@@ -199,7 +199,7 @@ class ApiCallerTest {
         ResponseCodeIsNotSuccessApiClientException receivedException = null;
         try {
             apiCaller.doCallAndThrowExceptionIfStatuscodeIsNot2xx(responseBodyClass, uriPath, httpMethod,
-                    queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams);
+                    queryParams, requestBodyInserter, headers, cookies, disableUrlEncodingOfQueryParams).block();
             fail("Nothing was thrown, but ResponseCodeIsNotSuccessApiClientException should have been thrown!");
         } catch (ResponseCodeIsNotSuccessApiClientException e) {
             receivedException = e;

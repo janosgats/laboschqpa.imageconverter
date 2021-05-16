@@ -1,14 +1,24 @@
 package com.laboschqpa.imageconverter.service.apiclient;
 
+import org.springframework.web.reactive.function.client.WebClient;
+
 public abstract class AbstractApiClient {
     private final ApiCallerFactory apiCallerFactory;
     private final boolean useAuthInterService;
+    private final WebClient customWebClient;
+    private final boolean useCustomWebClient;
 
     private ApiCaller apiCaller;
 
     public AbstractApiClient(ApiCallerFactory apiCallerFactory, boolean useAuthInterService) {
+        this(apiCallerFactory, useAuthInterService, null);
+    }
+
+    public AbstractApiClient(ApiCallerFactory apiCallerFactory, boolean useAuthInterService, WebClient customWebClient) {
+        useCustomWebClient = customWebClient != null;
         this.apiCallerFactory = apiCallerFactory;
         this.useAuthInterService = useAuthInterService;
+        this.customWebClient = customWebClient;
     }
 
     /**
@@ -23,10 +33,17 @@ public abstract class AbstractApiClient {
 
     private ApiCaller instantiateApiCaller() {
         if (useAuthInterService) {
+            if (useCustomWebClient) {
+                return apiCallerFactory.createForAuthInterService(getApiBaseUrl(), customWebClient);
+            }
             return apiCallerFactory.createForAuthInterService(getApiBaseUrl());
-        } else {
-            return apiCallerFactory.createGeneral(getApiBaseUrl());
         }
+
+        if (useCustomWebClient) {
+            return apiCallerFactory.createGeneral(getApiBaseUrl(), customWebClient);
+        }
+        return apiCallerFactory.createGeneral(getApiBaseUrl());
+
     }
 
     protected abstract String getApiBaseUrl();
