@@ -7,6 +7,7 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -34,10 +35,11 @@ public class ImageVariantCreationJobScheduler {
     private static final String TAG_VALUE_SUCCESS = "success";
     private static final String TAG_VALUE_FAILURE = "failure";
 
-    private static final int MAX_PARALLEL_JOBS = 20;
-
     private final MeterRegistry meterRegistry;
     private final ImageVariantCreationJobProcessor imageVariantCreationJobProcessor;
+
+    @Value("${variantCreationJobScheduler.maxParallelJobs}")
+    private Integer maxParallelJobs;
 
     private final AtomicInteger numberOfActiveJobs = new AtomicInteger(0);
 
@@ -82,7 +84,7 @@ public class ImageVariantCreationJobScheduler {
     private void incrementNumberOfActiveJobs() {
         final boolean acceptJob;
         synchronized (numberOfActiveJobs) {
-            if (numberOfActiveJobs.get() < MAX_PARALLEL_JOBS) {
+            if (numberOfActiveJobs.get() < maxParallelJobs) {
                 numberOfActiveJobs.incrementAndGet();
                 acceptJob = true;
             } else {
