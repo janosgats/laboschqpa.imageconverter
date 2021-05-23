@@ -1,6 +1,6 @@
 package com.laboschqpa.imageconverter.api.errorhandling;
 
-import com.laboschqpa.imageconverter.exceptions.TooManyActiveJobsException;
+import com.laboschqpa.imageconverter.exceptions.TooManyJobsException;
 import com.laboschqpa.imageconverter.exceptions.UnAuthorizedException;
 import com.laboschqpa.imageconverter.exceptions.apierrordescriptor.ApiErrorDescriptorException;
 import org.slf4j.Logger;
@@ -32,11 +32,11 @@ public class ExceptionHandlerControllerAdvice extends ResponseEntityExceptionHan
         return new ResponseEntity<>(new ApiErrorResponseBody(e.getApiErrorDescriptor(), e.getMessage()), HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(TooManyActiveJobsException.class)
+    @ExceptionHandler(TooManyJobsException.class)
     protected ResponseEntity<String> handlTooManyActiveJobs(
             Exception e, WebRequest request) {
-        loggerOfChild.debug("TooManyActiveJobsException caught while executing api request!", e);
-        return new ResponseEntity<>("Too many active jobs", HttpStatus.TOO_MANY_REQUESTS);
+        loggerOfChild.debug("TooManyJobsException caught while executing api request!", e);
+        return new ResponseEntity<>("Too many jobs", HttpStatus.TOO_MANY_REQUESTS);
     }
 
     @ExceptionHandler(UnAuthorizedException.class)

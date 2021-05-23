@@ -1,7 +1,7 @@
 package com.laboschqpa.imageconverter.api.controller;
 
 import com.laboschqpa.imageconverter.api.dto.imagevariant.ProcessCreationJobRequest;
-import com.laboschqpa.imageconverter.service.ImageVariantCreationJobScheduler;
+import com.laboschqpa.imageconverter.service.variantjob.ImageVariantCreationJobScheduler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +19,6 @@ public class ImageVariantController {
     @PostMapping("/processCreationJob")
     public void postProcessCreationJob(@RequestBody ProcessCreationJobRequest request) {
         request.validateSelf();
-        imageVariantCreationJobScheduler.scheduleCreationJob(request);
+        imageVariantCreationJobScheduler.scheduleJob(request);
     }
 }
