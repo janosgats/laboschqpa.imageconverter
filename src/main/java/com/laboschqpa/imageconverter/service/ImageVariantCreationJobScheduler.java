@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ImageVariantCreationJobScheduler {
     private static final String METRIC_NAME_ACTIVE_JOB_COUNT_GAUGE = "active_job_count_gauge";
     private static final String METRIC_NAME_JOB_REQUEST_COUNT = "job_request_count";
-    private static final String METRIC_NAME_TERMINATED_JOB_COUNT = "terminated_job_count";
+    private static final String METRIC_NAME_FINISHED_JOB_COUNT = "finished_job_count";
 
     private static final String TAG_NAME_JOB_TYPE = "jobType";
     private static final String TAG_VALUE_IMAGE_VARIANT_CREATION = "imageVariantCreation";
@@ -62,14 +62,14 @@ public class ImageVariantCreationJobScheduler {
                 .processCreationJobAsync(request)
                 .doOnSuccess(o -> {
                     log.info("Image variant creation job succeeded. jobId: {}", jobId);
-                    meterRegistry.counter(METRIC_NAME_TERMINATED_JOB_COUNT,
+                    meterRegistry.counter(METRIC_NAME_FINISHED_JOB_COUNT,
                             TAG_NAME_JOB_TYPE, TAG_VALUE_IMAGE_VARIANT_CREATION,
                             TAG_NAME_RESULT, TAG_VALUE_SUCCESS
                     ).increment();
                 })
                 .doOnError(processingThrowable -> {
                     log.error("Error during image variant creation job. jobId: {}", jobId, processingThrowable);
-                    meterRegistry.counter(METRIC_NAME_TERMINATED_JOB_COUNT,
+                    meterRegistry.counter(METRIC_NAME_FINISHED_JOB_COUNT,
                             TAG_NAME_JOB_TYPE, TAG_VALUE_IMAGE_VARIANT_CREATION,
                             TAG_NAME_RESULT, TAG_VALUE_FAILURE
                     ).increment();
@@ -77,7 +77,9 @@ public class ImageVariantCreationJobScheduler {
                     fileHostApiClient.signalFailedJobInJobProcessor(jobId)
                             .doOnError(signalingThrowable -> {
                                 log.error("Error while signaling failed job to FileHost. jobId: {}", jobId, signalingThrowable);
-                            }).subscribe();
+                            })
+                            .onErrorResume(throwable -> Mono.empty())
+                            .subscribe();
                 })
                 .onErrorResume(throwable -> Mono.empty())
                 .doFinally(signalType -> decrementNumberOfActiveJobs())
