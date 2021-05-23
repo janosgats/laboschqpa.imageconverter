@@ -2,6 +2,7 @@ package com.laboschqpa.imageconverter.service;
 
 import com.laboschqpa.imageconverter.api.dto.imagevariant.ProcessCreationJobRequest;
 import com.laboschqpa.imageconverter.exceptions.TooManyActiveJobsException;
+import com.laboschqpa.imageconverter.service.apiclient.filehost.FileHostApiClient;
 import io.micrometer.core.instrument.ImmutableTag;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
@@ -37,6 +38,7 @@ public class ImageVariantCreationJobScheduler {
 
     private final MeterRegistry meterRegistry;
     private final ImageVariantCreationJobProcessor imageVariantCreationJobProcessor;
+    private final FileHostApiClient fileHostApiClient;
 
     @Value("${variantCreationJobScheduler.maxParallelJobs}")
     private Integer maxParallelJobs;
@@ -65,14 +67,17 @@ public class ImageVariantCreationJobScheduler {
                             TAG_NAME_RESULT, TAG_VALUE_SUCCESS
                     ).increment();
                 })
-                .doOnError(throwable -> {
-                    log.error("Error during image variant creation job. jobId: {}", jobId, throwable);
+                .doOnError(processingThrowable -> {
+                    log.error("Error during image variant creation job. jobId: {}", jobId, processingThrowable);
                     meterRegistry.counter(METRIC_NAME_TERMINATED_JOB_COUNT,
                             TAG_NAME_JOB_TYPE, TAG_VALUE_IMAGE_VARIANT_CREATION,
                             TAG_NAME_RESULT, TAG_VALUE_FAILURE
                     ).increment();
 
-                    //TODO: Do callback to FileHost to indicate that the job failed (to not to rely on timeout so much).
+                    fileHostApiClient.signalFailedJobInJobProcessor(jobId)
+                            .doOnError(signalingThrowable -> {
+                                log.error("Error while signaling failed job to FileHost. jobId: {}", jobId, signalingThrowable);
+                            }).subscribe();
                 })
                 .onErrorResume(throwable -> Mono.empty())
                 .doFinally(signalType -> decrementNumberOfActiveJobs())

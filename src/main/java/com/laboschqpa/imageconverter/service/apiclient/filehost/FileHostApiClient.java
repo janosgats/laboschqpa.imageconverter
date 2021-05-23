@@ -18,6 +18,8 @@ public class FileHostApiClient extends AbstractApiClient {
     private String apiBaseUrl;
     @Value("${apiClient.fileHost.internal.imageVariant.uploadVariantUrl}")
     private String uploadImageVariantUrl;
+    @Value("${apiClient.fileHost.internal.imageVariant.signalJobFailedInJobProcessorUrl}")
+    private String signalJobFailedInJobProcessorUrl;
 
     public FileHostApiClient(ApiCallerFactory apiCallerFactory) {
         super(apiCallerFactory, true);
@@ -35,6 +37,14 @@ public class FileHostApiClient extends AbstractApiClient {
                 HttpMethod.POST,
                 Map.of("jobId", String.valueOf(jobId)),
                 BodyInserters.fromMultipartData(bodyBuilder.build())
+        ).flatMap((responseBody) -> Mono.empty());
+    }
+
+    public Mono<Void> signalFailedJobInJobProcessor(long jobId) {
+        return getApiCaller().doCallAndThrowExceptionIfStatuscodeIsNot2xx(String.class,
+                signalJobFailedInJobProcessorUrl,
+                HttpMethod.POST,
+                Map.of("jobId", String.valueOf(jobId))
         ).flatMap((responseBody) -> Mono.empty());
     }
 
