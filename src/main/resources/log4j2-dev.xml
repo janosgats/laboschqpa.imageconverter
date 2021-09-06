@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- LoggerConfig -->
+<Configuration name="com.laboschqpa.imageconverter" packages="com.laboschqpa.imageconverter.logging">
+    <Appenders>
+
+        <CustomLocaldevConsoleAppender name="LocaldevConsoleAppender">
+        </CustomLocaldevConsoleAppender>
+        <Async name="AsyncLocaldevConsoleAppender" bufferSize="16384">
+            <AppenderRef ref="LocaldevConsoleAppender"/>
+        </Async>
+
+    </Appenders>
+    <Loggers>
+        <Logger name="com.laboschqpa.imageconverter" level="all" additivity="false">
+            <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="AsyncLocaldevConsoleAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
